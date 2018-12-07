@@ -11,50 +11,11 @@ app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-const mongoose = require('mongoose');
-//mongoose.connect(process.env.MLAB_URI || 'mongodb://localhost/exercise-track' )
 var db;
 
 // mlab_url would be given to you upon registration in mlab.com
 var mlab_url = process.env.MLAB_URI;
 
-
-
-
-/*app.use(express.static('public'))
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html')
-});
-
-
-// Not found middleware
-app.use((req, res, next) => {
-  return next({status: 404, message: 'not found'})
-})
-
-// Error Handling middleware
-app.use((err, req, res, next) => {
-  let errCode, errMessage
-
-  if (err.errors) {
-    // mongoose validation error
-    errCode = 400 // bad request
-    const keys = Object.keys(err.errors)
-    // report the first validation error
-    errMessage = err.errors[keys[0]].message
-  } else {
-    // generic or custom error
-    errCode = err.status || 500
-    errMessage = err.message || 'Internal Server Error'
-  }
-  res.status(errCode).type('txt')
-    .send(errMessage)
-});
-
-const listener = app.listen(process.env.PORT || 3000, () => {
-  console.log('Your app is listening on port ' + listener.address().port)
-});
-*/
 
 MongoClient.connect(mlab_url, (err, database) => {    
     if(err)  return console.log("error while CONNECTING!! " + err);
@@ -86,7 +47,7 @@ MongoClient.connect(mlab_url, (err, database) => {
                   user_id: short_id,
                   details: []
               };
-              //res.json(save_data);             
+                      
               db.collection('excerciseTracker').save(save_data, (err, result) => {
                   if(err) return console.log("error while uploading DATA!! " + err);
                   console.log("saved to database successfully!");                                                
@@ -98,9 +59,6 @@ MongoClient.connect(mlab_url, (err, database) => {
       } else {
         res.send("Sorry! You didn't enter any username..");
       }
-      
-      
-        //res.send(req.body.username);
     });
   
     app.post("/api/exercise/add", (req, res) => {
@@ -132,18 +90,11 @@ MongoClient.connect(mlab_url, (err, database) => {
           console.log("error with post data"); 
           res.send(msg);
         }
-        
-        
-        
+    
       } else { 
         console.log("user doesn't exist"); 
         res.send('Sorry! The id you entered is not valid');
-      }});
-    
-    
-    
-    
-    
+      }}); 
   });
   
     app.get("/api/exercise/log/", (req, res) => {        
@@ -166,7 +117,6 @@ MongoClient.connect(mlab_url, (err, database) => {
                 return (new Date(record.date)).getTime() <= (new Date(to)).getTime();
               });
             }
-            //let log = result.details.filter(
             let save_data = {
               "_id": userId,
               "username": result.user_name,
@@ -180,51 +130,7 @@ MongoClient.connect(mlab_url, (err, database) => {
           
         });
     });
-    
-    /*app.get('/api/*', (req, res) => {
-        var query = (req.originalUrl).slice(5);
-        query = query.split('?')[0];
-        var date = (new Date()).toISOString();  
-        var off = 0;                        
-        if(req.query.offset){            
-            off = parseInt(req.query['offset']) + 1;
-        }
-        console.log(query);
-        var save_data = {
-            query: decodeURIComponent(query),            
-            when: date
-        };
-        //res.json(save_data);             
-        db.collection('imageSearch').save(save_data, (err, result) => {
-            if(err) return console.log("error while uploading DATA!! " + err);
-            console.log("saved to database successfully!");                                    
-            qwant.search("images", { query: query, count: 10, offset: off, language: "english" }, function(err, data){
-                if (err) return console.log(err);
-                const items = data['data']['result']['items'];            
-                var final = [];
-                items.map(function(item){
-                    final.push(
-                        {
-                            "image-url": item["media"],
-                            "alt-text": item["title"],
-                            "page-url": item["url"]
-                        }
-                    );
-                });
-                res.json(final);
-            }); 
-        });        
-        
-    });*
 
-    app.get('/latest/', (req, res) => {                
-        db.collection('imageSearch').find({}, { _id: false, query: true, when: true }).sort({_id:-1}).toArray(function(err, result) {
-            if (err) throw err;
-            db.close();
-            res.json(result);
-        });
-    });   */         
-  
     // Respond not found to all the wrong routes
     app.use(function(req, res, next){
         res.status(404);
